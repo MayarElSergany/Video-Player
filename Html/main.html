@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Document 1</title>
+
+    <style>
+        div#video_control_bar {
+            background-color: #333;
+            padding: 10px;
+            color: #CCC;
+            font-family: 'Trebuchet MS';
+        }
+
+        div#video_player_box {
+            width: 550px;
+            background-color: black;
+            margin: 0px auto;
+        }
+
+        input#seeksSlider {
+            width: 180px;
+        }
+
+        input#volumeSlider {
+            width: 60px;
+        }
+
+        input[type='range'] {
+            -webkit-appearance: none !important;
+            background: black;
+            border: 1px solid;
+
+            height: 4px;
+        }
+
+        input [type='range']::-webkit-slider-thumb {
+            -webkit-appearance: none !important;
+            background: #FFF;
+            height: 15px;
+            width: 15px;
+            border-radius: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="video_player_box">
+        <!-- <audio src="../audio/big_buck_bunny.mp4" controls></audio> -->
+        <video id="my_video" src="../audio/big_buck_bunny.mp4" width="550" height="320"></video>
+
+        <div id="video_control_bar">
+            <button id="playPauseBtn">Pause</button>
+            <input id="seeksSlider" type="range" min="0" max="100" value="0" step="1" style="width:200px;">
+            <span id="currentTimeText"></span><span id="durationTimeText"></span>
+            <button id="muteBtn">Mute</button>
+            <input id="volumeSlider" type="range" min="0" max="100" value="100" step="1">
+            <span>Speed: </span>
+            <input id="speed" type="range" min="1" max="2" value="1" step="0.8">
+
+            <button id="fullScreenBtn">[&nbsp;]</button>
+        </div>
+    </div>
+
+    <script>
+        var vid, playbtn, seeksSlider, currentTimeText, durationTimeText, muteBtn, speed, volumeSlider, fullScreenBtn;
+        function intializePlayer() {
+            vid = document.getElementById("my_video");
+            playbtn = document.getElementById("playPauseBtn");
+            seeksSlider = document.getElementById("seeksSlider");
+            currentTimeText = document.getElementById("currentTimeText");
+            durationTimeText = document.getElementById("durationTimeText");
+            muteBtn = document.getElementById("muteBtn");
+            volumeSlider = document.getElementById("volumeSlider");
+            fullScreenBtn = document.getElementById("fullScreenBtn");
+            speed = document.getElementById("speed");
+
+
+            playbtn.addEventListener("click", playPause, false);
+            seeksSlider.addEventListener("change", vidSeek, false);
+            vid.addEventListener("timeupdate", seekTimeUpdate, false);
+            muteBtn.addEventListener("click", vidMute, false);
+            volumeSlider.addEventListener("change", setVolume, false);
+            fullScreenBtn.addEventListener("click", sizeFullScreen, false);
+            speed.addEventListener("change", speedControl, false);
+
+        }
+        window.onload = intializePlayer;
+
+
+        function playPause() {
+            if (vid.paused) {
+                vid.play();
+                playbtn.innerHTML = "Pause";
+            }
+            else {
+                vid.pause();
+                playbtn.innerHTML = "Play";
+            }
+        }
+
+        function vidSeek() {
+            var seekto = vid.duration * (seeksSlider.value / 100);
+            vid.currentTime = seekto;
+        }
+
+        function seekTimeUpdate() {
+            var nt = vid.currentTime * (100 / vid.duration);
+            seeksSlider.value = nt;
+
+            var currentMins = Math.floor(vid.currentTime / 60);
+            var currentSecs = Math.floor(vid.currentTime - currentMins * 60);
+            var durationMins = Math.floor(vid.duration / 60);
+            var durationSecs = Math.round(vid.duration - durationMins * 60);
+            if (currentSecs < 10) {
+                currentSecs = "0" + currentSecs;
+            }
+            if (durationSecs < 10) {
+                durationSecs = "0" + durationSecs;
+            }
+            if (currentMins < 10) {
+                currentMins = "0" + currentMins;
+            }
+            if (durationMins < 10) {
+                durationMins = "0" + durationMins;
+            }
+            currentTimeText.innerHTML = currentMins + ":" + currentSecs + " / ";
+            durationTimeText.innerHTML = durationMins + ":" + durationSecs;
+        }
+
+        function vidMute() {
+            if (vid.muted) {
+                vid.muted = false;
+                muteBtn.innerHTML = "Mute";
+            }
+
+            else {
+                vid.muted = true;
+                muteBtn.innerHTML = "Unmute";
+            }
+        }
+
+        function setVolume() {
+            vid.volume = volumeSlider.value / 100;
+
+        }
+
+        function sizeFullScreen() {
+            if (vid.requestFullScreen) {
+                vid.requestFullScreen();
+            }
+            else if (vid.webkitRequestFullScreen) {
+                vid.webkitRequestFullScreen();
+            }
+            else if (vid.mozRequestFullScreen) {
+                vid.mozRequestFullScreen();
+            }
+        }
+
+        var theVideo = document.getElementById("my_video");
+        document.onkeydown = function (event) {
+            switch (event.keyCode) {
+                case 37:
+                    event.preventDefault();
+                    vid_currentTime = theVideo.currentTime;
+                    theVideo.currentTime = vid_currentTime - 5;
+                    break;
+
+                case 39:
+                    event.preventDefault();
+                    vid_currentTime = theVideo.currentTime;
+                    theVideo.currentTime = vid_currentTime + 5;
+                    break;
+            }
+        };
+
+
+
+        function speedControl(event) {
+            vid.playbackRate = event.currentTarget.value;
+
+        }
+
+
+    </script>
+</body>
+
+</html>
